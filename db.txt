@@ -1,0 +1,194 @@
+db
+
+package com.example.program4;
+import androidx.appcompat.app.AppCompatActivity;
+import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Bundle; import android.view.View;
+import android.widget.Button; import android.widget.EditText;
+import android.widget.TextView; import android.widget.Toast;
+public class MainActivity extends AppCompatActivity {
+    Button btn_Insert, btn_Delete, btn_Update; EditText Id, Name, Email, Phone;
+    SQLiteOpenHelper openHelper;
+    SQLiteDatabase db;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        btn_Insert = (Button)findViewById(R.id.btnInsert);
+        btn_Delete = (Button)findViewById(R.id.btnDelete);
+        btn_Update = (Button)findViewById(R.id.btnUpdate);
+        Id = (EditText)findViewById(R.id.ID);
+        Name = (EditText)findViewById(R.id.Name);
+        Email = (EditText)findViewById(R.id.Email);
+        Phone = (EditText)findViewById(R.id.Phone);
+        openHelper = new Database(this);
+        btn_Insert.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String name = Name.getText().toString();
+                String email = Email.getText().toString();
+                String phone = Phone.getText().toString();
+                db = openHelper.getWritableDatabase();
+                insertData(name,email,phone);
+                Toast.makeText(getApplicationContext(), "Insert Success" , Toast.LENGTH_SHORT ).show(); } });
+        btn_Delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                db=openHelper.getWritableDatabase();
+                String name = Name.getText().toString();
+                deleteData(name);
+                Toast.makeText(getApplicationContext(),"Delete success", Toast.LENGTH_LONG).show(); } });
+        btn_Update.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String name = Name.getText().toString();
+                String email = Email.getText().toString();
+                String phone = Phone.getText().toString();
+                db = openHelper.getWritableDatabase();
+                updateData(name,email,phone);
+                Toast.makeText(getApplicationContext(), "updated Successfully" , Toast.LENGTH_SHORT ).show(); } });
+    }
+    public void insertData (String name, String email, String phone) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(Database.Name, name);
+        contentValues.put(Database.Email, email);
+        contentValues.put(Database.PhoneNO, phone);
+        long id = db.insert(Database.TABLE_NAME, null, contentValues );
+    }
+    public boolean deleteData(String name){
+        return db.delete(Database.TABLE_NAME, Database.Name + "=?", new String[]{name})>0;
+    }
+    public boolean updateData(String name, String email, String phone) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(Database.Name, name);
+        contentValues.put(Database.Email, email);
+        contentValues.put(Database.PhoneNO, phone);
+        return db.update(Database.TABLE_NAME, contentValues, Database.Name + "=?", new String[]{name})>0;
+    } }
+
+------------
+
+Database.java
+package com.example.program4;
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+import androidx.annotation.Nullable;
+public class Database extends SQLiteOpenHelper {
+    public static final String DATABASE_NAME = "Proj4.db";
+    public static final String TABLE_NAME = "Proj4";
+    public static final String Id = "ID";
+    public static final String Name = "name";
+    public static final String Email = "email";
+    public static final String PhoneNO = "phoneNo";;
+    public Database(@Nullable Context context) {
+        super(context, DATABASE_NAME, null , 1);
+    } @Override
+    public void onCreate(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE "+ TABLE_NAME + "(ID INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, email TEXT, phoneNo TEXT )");
+    } @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) { db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME );
+    onCreate(db);
+    } }
+-------
+
+xml
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+    <EditText
+        android:id="@+id/Name"
+        android:layout_width="0dp"
+        android:layout_height="58dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="66dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="12dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:text="Name"
+        app:layout_constraintBottom_toBottomOf="@+id/Email"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.387" />
+    <EditText android:id="@+id/Email"
+        android:layout_width="0dp"
+        android:layout_height="58dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="12dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:text="Email Id"
+        app:layout_constraintBottom_toTopOf="@+id/Phone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+    app:layout_constraintStart_toStartOf="parent" />
+    <EditText
+        android:id="@+id/Phone"
+        android:layout_width="393dp"
+        android:layout_height="63dp"
+        android:layout_marginStart="7dp"
+        android:layout_marginLeft="7dp"
+        android:layout_marginTop="276dp"
+        android:layout_marginEnd="7dp"
+        android:layout_marginRight="7dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:text="Phone Number"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+    <Button
+        android:id="@+id/btnInsert"
+        android:layout_width="96dp"
+        android:layout_height="41dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:text="Add"
+        app:layout_constraintBaseline_toBaselineOf="@+id/btnDelete"
+        app:layout_constraintStart_toStartOf="parent" />
+    <Button
+        android:id="@+id/btnDelete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="40dp"
+        android:layout_marginRight="40dp"
+        android:text="Delete"
+        app:layout_constraintEnd_toStartOf="@+id/btnUpdate"
+        tools:layout_editor_absoluteY="375dp" />
+    <Button
+        android:id="@+id/btnUpdate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="44dp"
+        android:layout_marginRight="44dp"
+        android:text="Update"
+        app:layout_constraintBaseline_toBaselineOf="@+id/btnDelete"
+        app:layout_constraintEnd_toEndOf="parent" />
+    <EditText
+        android:id="@+id/ID"
+        android:layout_width="391dp"
+        android:layout_height="49dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:text="ID"
+        app:layout_constraintEnd_toEndOf="parent"
+    tools:layout_editor_absoluteY="46dp" />
+</androidx.constraintlayout.widget.ConstraintLayout>
